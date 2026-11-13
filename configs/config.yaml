@@ -1,0 +1,23 @@
+defaults:
+  - _self_
+
+project:
+  name: "polyp-segmentation"
+  seed: 42
+
+dataset:
+  root_dir: "dataset/kvasir-seg/Kvasir-SEG"
+  image_size: [256, 256]
+  batch_size: 4
+  num_workers: 0
+
+model:
+  name: "unet_baseline"
+  in_channels: 3
+  num_classes: 1
+  base_channels: 32
+
+train:
+  epochs: 1
+  learning_rate: 0.001
+  device: "cuda"
