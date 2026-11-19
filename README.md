@@ -89,13 +89,13 @@ Checkpoint tốt nhất được lưu ở `outputs/checkpoints/<run_name>/best.c
 
 ## Evaluate
 
-Đánh giá checkpoint trên test split cố định và lưu prediction mask PNG:
+Đánh giá checkpoint mới nhất trên test split cố định và lưu prediction mask PNG:
 
 ```powershell
-python evaluate.py evaluation.checkpoint_path='outputs/checkpoints/<run_name>/best.ckpt'
+python evaluate.py
 ```
 
-Để không lưu prediction masks:
+Để dùng checkpoint khác hoặc không lưu prediction masks:
 
 ```powershell
 python evaluate.py evaluation.checkpoint_path='outputs/checkpoints/<run_name>/best.ckpt' evaluation.save_predictions=false

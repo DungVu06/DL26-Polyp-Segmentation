@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Mapping
 from pathlib import Path
+import shutil
 from typing import Any
 
 import cv2
@@ -71,6 +72,7 @@ class SegmentationTrainer:
         best_epoch, stale_epochs = 0, 0
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
         checkpoint_path = self.checkpoint_dir / "best.ckpt"
+        latest_checkpoint_path = self.checkpoint_dir.parent / "latest.ckpt"
 
         for epoch in range(1, self.max_epochs + 1):
             train_metrics, _ = self._run_epoch(model, datamodule.train_dataloader(), criterion, optimizer, scaler, epoch, "train")
@@ -85,6 +87,7 @@ class SegmentationTrainer:
             if self._is_improvement(score, best_score):
                 best_score, best_epoch, stale_epochs = score, epoch, 0
                 self._save_checkpoint(checkpoint_path, model, optimizer, epoch, best_score, config)
+                shutil.copy2(checkpoint_path, latest_checkpoint_path)
                 self.logger.log_artifact(checkpoint_path, name="best-model", artifact_type="model")
             else:
                 stale_epochs += 1

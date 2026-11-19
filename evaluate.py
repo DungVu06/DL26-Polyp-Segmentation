@@ -12,9 +12,6 @@ from src.utils.seed import seed_everything
 
 @hydra.main(version_base="1.3", config_path="configs", config_name="config")
 def main(cfg: DictConfig) -> None:
-    if cfg.evaluation.checkpoint_path is None:
-        raise ValueError("Set evaluation.checkpoint_path=/path/to/best.ckpt")
-
     seed_everything(cfg.project.seed)
     resolved_config = OmegaConf.to_container(cfg, resolve=True, throw_on_missing=True)
     datamodule = instantiate(cfg.dataset)
