@@ -89,6 +89,15 @@ class SegmentationTrainer:
             else:
                 stale_epochs += 1
 
+            print(
+                f"Epoch {epoch:03d}/{self.max_epochs} | "
+                f"train loss={train_metrics['loss']:.4f} dice={train_metrics['dice']:.4f} iou={train_metrics['iou']:.4f} | "
+                f"val loss={val_metrics['loss']:.4f} dice={val_metrics['dice']:.4f} iou={val_metrics['iou']:.4f} | "
+                f"lr={optimizer.param_groups[0]['lr']:.2e} | "
+                f"best val_{self.monitor}={best_score:.4f} (epoch {best_epoch}) | "
+                f"early-stop={stale_epochs}/{self.early_stopping_patience}"
+            )
+
             if examples is not None and epoch % self.image_log_every_n_epochs == 0:
                 self._log_examples(*examples, epoch=epoch)
             if stale_epochs >= self.early_stopping_patience:
