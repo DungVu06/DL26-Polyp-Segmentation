@@ -1,0 +1,2 @@
+_target_: src.training.schedulers.create_no_scheduler
+_partial_: true

@@ -1,0 +1,5 @@
+root_dir: ${hydra:runtime.cwd}
+data_dir: null
+split_file: ${paths.root_dir}/kvasir-seg.json
+output_dir: ${paths.root_dir}/outputs
+checkpoint_dir: ${paths.output_dir}/checkpoints/${project.run_name}

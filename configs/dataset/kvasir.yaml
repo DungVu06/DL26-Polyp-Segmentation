@@ -1,0 +1,17 @@
+_target_: src.data.kvasir.KvasirSegDataModule
+root_dir: ${paths.data_dir}
+split_file: ${paths.split_file}
+kaggle_dataset: datnd004/kvasir-seg
+download: true
+image_size: [224, 224]
+batch_size: 8
+num_workers: 2
+pin_memory: true
+persistent_workers: true
+
+train_transform:
+  _target_: src.data.transforms.build_train_transform
+  _partial_: true
+eval_transform:
+  _target_: src.data.transforms.build_eval_transform
+  _partial_: true

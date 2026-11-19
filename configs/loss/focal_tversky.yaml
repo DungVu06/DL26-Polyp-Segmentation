@@ -1,0 +1,6 @@
+_target_: src.losses.segmentation.FocalTverskyLoss
+name: focal_tversky
+alpha: 0.3
+beta: 0.7
+gamma: 0.75
+smooth: 1.0

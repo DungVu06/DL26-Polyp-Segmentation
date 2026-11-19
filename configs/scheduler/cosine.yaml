@@ -1,0 +1,4 @@
+_target_: src.training.schedulers.create_cosine_annealing
+_partial_: true
+t_max: ${trainer.max_epochs}
+eta_min: 0.000001

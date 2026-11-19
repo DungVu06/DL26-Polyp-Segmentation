@@ -1,0 +1,4 @@
+_target_: src.losses.segmentation.FocalLoss
+name: focal
+alpha: 0.25
+gamma: 2.0

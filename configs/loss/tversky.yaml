@@ -1,0 +1,5 @@
+_target_: src.losses.segmentation.TverskyLoss
+name: tversky
+alpha: 0.3
+beta: 0.7
+smooth: 1.0

@@ -1,0 +1,11 @@
+_target_: src.losses.segmentation.WeightedSumLoss
+name: bce_dice
+losses:
+  bce:
+    _target_: src.losses.segmentation.BCEWithLogitsSegLoss
+  dice:
+    _target_: src.losses.segmentation.DiceLoss
+    smooth: 1.0
+weights:
+  bce: 1.0
+  dice: 1.0

@@ -8,9 +8,10 @@ venv/
 ENV/
 env/
 
-dataset/
 datasets/
 data/
+!src/data/
+!src/data/**
 *.zip
 *.tar.gz
 *.tar
@@ -29,14 +30,6 @@ multirun/
 wandb/
 runs/
 *.log
+.env
 
 .ipynb_checkpoints/
-
-.vscode/
-.idea/
-*.sublime-project
-*.sublime-workspace
-.DS_Store
-Thumbs.db
-
-linh_tinh/

@@ -1,0 +1,3 @@
+_target_: src.losses.segmentation.DiceLoss
+name: dice
+smooth: 1.0

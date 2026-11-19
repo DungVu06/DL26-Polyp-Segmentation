@@ -1,0 +1,6 @@
+_target_: src.utils.loggers.WandbLogger
+project: ${project.name}
+entity: null
+run_name: ${project.run_name}
+tags: [kvasir-seg, "${model.name}", "${loss.name}"]
+mode: ${oc.env:WANDB_MODE,offline}
