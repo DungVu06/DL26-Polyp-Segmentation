@@ -16,7 +16,7 @@ def main(cfg: DictConfig) -> None:
     criterion = instantiate(cfg.loss)
     optimizer_factory = instantiate(cfg.optimizer)
     scheduler_factory = instantiate(cfg.scheduler)
-    logger = instantiate(cfg.logger, config=resolved_config)
+    logger = instantiate(cfg.logger, run_config=resolved_config)
     trainer = instantiate(cfg.trainer, logger=logger)
 
     parameter_count = sum(parameter.numel() for parameter in model.parameters())

@@ -6,8 +6,8 @@ from typing import Any
 
 
 class NoOpLogger:
-    def __init__(self, config: Mapping[str, Any] | None = None) -> None:
-        del config
+    def __init__(self, run_config: Mapping[str, Any] | None = None) -> None:
+        del run_config
 
     def log_metrics(self, metrics: Mapping[str, float], step: int | None = None) -> None:
         del metrics, step
@@ -30,7 +30,7 @@ class WandbLogger:
         run_name: str,
         tags: Sequence[str],
         mode: str,
-        config: Mapping[str, Any] | None = None,
+        run_config: Mapping[str, Any] | None = None,
     ) -> None:
         try:
             import wandb
@@ -42,7 +42,7 @@ class WandbLogger:
             entity=entity,
             name=run_name,
             tags=list(tags),
-            config=dict(config or {}),
+            config=dict(run_config or {}),
             mode=mode,
         )
 
