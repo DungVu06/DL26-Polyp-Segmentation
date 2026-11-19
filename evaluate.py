@@ -20,7 +20,7 @@ def main(cfg: DictConfig) -> None:
     datamodule = instantiate(cfg.dataset)
     model = instantiate(cfg.model)
     criterion = instantiate(cfg.loss)
-    logger = instantiate(cfg.logger, run_config=resolved_config)
+    logger = instantiate(cfg.logger, run_config=resolved_config, _recursive_=False)
     trainer = instantiate(cfg.trainer, logger=logger)
 
     checkpoint_path = Path(cfg.evaluation.checkpoint_path)
