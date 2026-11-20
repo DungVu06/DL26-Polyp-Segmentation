@@ -50,3 +50,36 @@ def build_eval_transform(image_size: int | Sequence[int]) -> A.Compose:
             ToTensorV2(),
         ]
     )
+
+
+def build_segformer_train_transform(image_size: int | Sequence[int] = (512, 512)) -> A.Compose:
+    height, width = _height_width(image_size)
+    return A.Compose(
+        [
+            A.Resize(height, width),
+            A.HorizontalFlip(p=0.5),
+            A.VerticalFlip(p=0.5),
+            A.RandomRotate90(p=0.5),
+            A.ShiftScaleRotate(
+                shift_limit=0.0625,
+                scale_limit=0.1,
+                rotate_limit=30,
+                border_mode=cv2.BORDER_CONSTANT,
+                p=0.5,
+            ),
+            A.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1, p=0.5),
+            A.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD),
+            ToTensorV2(),
+        ]
+    )
+
+
+def build_segformer_eval_transform(image_size: int | Sequence[int] = (512, 512)) -> A.Compose:
+    height, width = _height_width(image_size)
+    return A.Compose(
+        [
+            A.Resize(height, width),
+            A.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD),
+            ToTensorV2(),
+        ]
+    )
