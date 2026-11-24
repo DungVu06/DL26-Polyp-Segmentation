@@ -75,12 +75,14 @@ class SegmentationTrainer:
         latest_checkpoint_path = self.checkpoint_dir.parent / "latest.ckpt"
 
         for epoch in range(1, self.max_epochs + 1):
-            train_metrics, _ = self._run_epoch(model, datamodule.train_dataloader(), criterion, optimizer, scaler, epoch, "train")
+            train_loader = datamodule.train_dataloader()
+            train_metrics, _ = self._run_epoch(model, train_loader, criterion, optimizer, scaler, epoch, "train")
             val_metrics, examples = self._run_epoch(model, datamodule.val_dataloader(), criterion, None, scaler, epoch, "val")
             epoch_metrics = {f"train/{key}": value for key, value in train_metrics.items()}
             epoch_metrics.update({f"val/{key}": value for key, value in val_metrics.items()})
             epoch_metrics["lr"] = optimizer.param_groups[0]["lr"]
-            self.logger.log_metrics(epoch_metrics, step=epoch)
+            epoch_metrics["epoch"] = epoch
+            self.logger.log_metrics(epoch_metrics, step=epoch * len(train_loader))
 
             self._step_scheduler(scheduler_handle, val_metrics[self.monitor])
             score = val_metrics[self.monitor]
