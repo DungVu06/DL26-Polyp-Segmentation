@@ -13,8 +13,9 @@ defaults:
 project:
   name: polyp-segmentation
   seed: 42
+  run_id: run1
   mode: train
-  run_name: ${model.name}_${project.mode}_${now:%m%d_%H%M%S}
+  run_name: ${model.name}_${project.run_id}_${project.mode}
 
 hydra:
   job:
