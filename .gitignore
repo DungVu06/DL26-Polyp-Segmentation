@@ -1,38 +1,59 @@
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-
+﻿# === 1. Môi trường ảo & Cache Python ===
 .venv/
 venv/
-ENV/
 env/
+__pycache__/
+*.py[cod]
+*.class
+*.so
+.Python
+*.egg-info/
+.pytest_cache/
 
-dataset/
-datasets/
+# === 2. Dữ liệu & File nén (Rất nặng) ===
 data/
-!src/data/
-!src/data/**
+datasets/
 *.zip
-*.tar.gz
 *.tar
+*.tar.gz
+*.rar
+*.7z
+*.h5
+*.hdf5
+# Bỏ qua ảnh/mask nếu lỡ lưu vào thư mục dự án (giữ lại ảnh mẫu trong docs/assets nếu có)
+*.jpg
+*.jpeg
+*.png
+*.tif
+*.tiff
 
-*.pt
+# === 3. Trọng số Model & Checkpoints (Cực nặng) ===
 *.pth
+*.pt
 *.ckpt
+*.safetensors
 *.onnx
+*.bin
 checkpoints/
 weights/
+saved_models/
 
+# === 4. Log huấn luyện (Hydra, WandB, TensorBoard) ===
 outputs/
 multirun/
-.hydra/
-
 wandb/
+logs/
+lightning_logs/
 runs/
 *.log
-.env
 
+# === 5. Bảo mật (API Keys) ===
+.env
+kaggle.json
+
+# === 6. IDE & Hệ điều hành ===
+.vscode/
+.idea/
 .ipynb_checkpoints/
-linh_tinh/
-kvasir-seg-notebook.ipynb
+.DS_Store
+Thumbs.db
