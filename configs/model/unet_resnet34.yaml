@@ -1,0 +1,6 @@
+_target_: src.models.unet.UNetPretrained
+name: unet_resnet34
+encoder_name: resnet34
+encoder_weights: imagenet
+in_channels: 3
+out_channels: 1
