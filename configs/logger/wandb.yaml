@@ -1,6 +1,6 @@
 _target_: src.utils.loggers.WandbLogger
 project: ${project.name}
-entity: null
+entity: DL_team_8
 run_name: ${project.run_name}
 tags: [kvasir-seg, "${model.name}", "${project.run_id}", "${project.mode}"]
 mode: ${oc.env:WANDB_MODE,offline}
