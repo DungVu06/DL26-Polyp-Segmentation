@@ -57,3 +57,7 @@ kaggle.json
 .ipynb_checkpoints/
 .DS_Store
 Thumbs.db
+
+experiments
+archive
+kvasir-seg-notebook.ipynb

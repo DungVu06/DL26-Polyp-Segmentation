@@ -4,3 +4,4 @@ model_name: nvidia/mit-b0
 in_channels: 3
 out_channels: 1
 pretrained: true
+decoder_stages: null

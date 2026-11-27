@@ -1,6 +1,10 @@
 import torch
 import torch.nn as nn
-import segmentation_models_pytorch as smp
+
+try:
+    import segmentation_models_pytorch as smp
+except ImportError:
+    smp = None
 
 
 class DoubleConv(nn.Module):
@@ -100,6 +104,11 @@ class UNetPretrained(nn.Module):
         **kwargs
     ):
         super().__init__()
+        if smp is None:
+            raise ImportError(
+                "Thư viện 'segmentation_models_pytorch' chưa được cài đặt. "
+                "Vui lòng chạy: pip install segmentation-models-pytorch"
+            )
         self.model = smp.Unet(
             encoder_name=encoder_name,
             encoder_weights=encoder_weights,
