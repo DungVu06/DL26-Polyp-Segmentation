@@ -66,7 +66,8 @@ class SegmentationTrainer:
         datamodule.setup()
         model.to(self.device)
         optimizer = optimizer_factory(params=model.parameters())
-        scheduler_handle = scheduler_factory(optimizer=optimizer)
+        train_loader = datamodule.train_dataloader()
+        scheduler_handle = scheduler_factory(optimizer=optimizer, total_steps=self.max_epochs * len(train_loader))
         scaler = torch.cuda.amp.GradScaler(enabled=self.use_amp)
         best_score = float("inf") if self.monitor_mode == "min" else float("-inf")
         best_epoch, stale_epochs = 0, 0
@@ -75,8 +76,7 @@ class SegmentationTrainer:
         latest_checkpoint_path = self.checkpoint_dir.parent / "latest.ckpt"
 
         for epoch in range(1, self.max_epochs + 1):
-            train_loader = datamodule.train_dataloader()
-            train_metrics, _ = self._run_epoch(model, train_loader, criterion, optimizer, scaler, epoch, "train")
+            train_metrics, _ = self._run_epoch(model, train_loader, criterion, optimizer, scaler, epoch, "train", scheduler_handle=scheduler_handle)
             val_metrics, examples = self._run_epoch(model, datamodule.val_dataloader(), criterion, None, scaler, epoch, "val")
             epoch_metrics = {f"train/{key}": value for key, value in train_metrics.items()}
             epoch_metrics.update({f"val/{key}": value for key, value in val_metrics.items()})
@@ -150,6 +150,7 @@ class SegmentationTrainer:
         stage: str,
         prediction_dir: str | None = None,
         threshold: float = 0.5,
+        scheduler_handle: SchedulerHandle | None = None,
     ) -> tuple[dict[str, float], tuple[np.ndarray, np.ndarray, np.ndarray, list[str]] | None]:
         training = optimizer is not None
         model.train(training)
@@ -175,8 +176,11 @@ class SegmentationTrainer:
                     if self.grad_clip_norm is not None:
                         scaler.unscale_(optimizer)
                         torch.nn.utils.clip_grad_norm_(model.parameters(), self.grad_clip_norm)
+                    previous_scale = scaler.get_scale()
                     scaler.step(optimizer)
                     scaler.update()
+                    if scheduler_handle is not None and scheduler_handle.step_on == "step" and scaler.get_scale() >= previous_scale:
+                        scheduler_handle.scheduler.step()
 
                 batch_size = images.shape[0]
                 total_loss += loss.detach().item() * batch_size
@@ -202,7 +206,7 @@ class SegmentationTrainer:
             return
         if handle.step_on == "metric":
             handle.scheduler.step(metric)
-        else:
+        elif handle.step_on == "epoch":
             handle.scheduler.step()
 
     @staticmethod

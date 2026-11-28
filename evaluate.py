@@ -29,10 +29,13 @@ def main(cfg: DictConfig) -> None:
     datamodule.setup()
     prediction_dir = cfg.evaluation.prediction_dir if cfg.evaluation.save_predictions else None
     try:
-        threshold, val_metrics = trainer.tune_threshold(model, datamodule.val_dataloader())
-        print(f"Validation threshold: {threshold:.3f} | metrics: {val_metrics}")
+        threshold = 0.5
+        if cfg.evaluation.tune_threshold:
+            threshold, val_metrics = trainer.tune_threshold(model, datamodule.val_dataloader())
+            print(f"Validation threshold: {threshold:.3f} | metrics: {val_metrics}")
+            logger.log_metrics({"validation/best_threshold": threshold, **{f"validation/tuned_{key}": value for key, value in val_metrics.items()}})
         result = trainer.evaluate(model, datamodule.test_dataloader(), criterion, prediction_dir, threshold=threshold)
-        logger.log_metrics({"validation/best_threshold": threshold, **{f"validation/tuned_{key}": value for key, value in val_metrics.items()}, **{f"test/{key}": value for key, value in result.items()}})
+        logger.log_metrics({"test/threshold": threshold, **{f"test/{key}": value for key, value in result.items()}})
         print(f"Test metrics: {result}")
     finally:
         logger.finish()

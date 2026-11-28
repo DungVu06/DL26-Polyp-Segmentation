@@ -1,3 +1,4 @@
 checkpoint_path: ${paths.checkpoint_dir}/best.ckpt
 save_predictions: true
+tune_threshold: false
 prediction_dir: ${paths.output_dir}/predictions/${project.run_name}
