@@ -30,8 +30,8 @@ class SegmentationTrainer:
         image_log_every_n_epochs: int,
         logger: Any,
     ) -> None:
-        if monitor not in {"dice", "iou"}:
-            raise ValueError("monitor must be one of: dice, iou")
+        if monitor not in {"loss", "dice", "iou"}:
+            raise ValueError("monitor must be one of: loss, dice, iou")
         if monitor_mode not in {"min", "max"}:
             raise ValueError("monitor_mode must be one of: min, max")
         self.max_epochs = max_epochs
@@ -116,10 +116,28 @@ class SegmentationTrainer:
         dataloader: Any,
         criterion: nn.Module,
         prediction_dir: str | None = None,
+        threshold: float = 0.5,
     ) -> dict[str, float]:
         model.to(self.device)
-        metrics, _ = self._run_epoch(model, dataloader, criterion, None, None, epoch=0, stage="test", prediction_dir=prediction_dir)
+        metrics, _ = self._run_epoch(model, dataloader, criterion, None, None, epoch=0, stage="test", prediction_dir=prediction_dir, threshold=threshold)
         return metrics
+
+    @torch.no_grad()
+    def tune_threshold(self, model: nn.Module, dataloader: Any) -> tuple[float, dict[str, float]]:
+        thresholds = [index / 100 for index in range(5, 100, 5)]
+        model.to(self.device)
+        model.eval()
+        metrics = [BinarySegmentationMetrics(threshold=float(threshold)) for threshold in thresholds]
+        for images, masks, _ in tqdm(dataloader, desc="Tune threshold on validation", leave=False):
+            images = images.to(self.device, non_blocking=True)
+            masks = masks.to(self.device, non_blocking=True)
+            with torch.autocast(device_type=self.device.type, enabled=self.use_amp):
+                logits = model(images)
+            for metric in metrics:
+                metric.update(logits, masks)
+        scores = [metric.compute() for metric in metrics]
+        best = max(range(len(scores)), key=lambda index: (scores[index]["dice"], -abs(float(thresholds[index]) - 0.5)))
+        return float(thresholds[best]), scores[best]
 
     def _run_epoch(
         self,
@@ -131,10 +149,11 @@ class SegmentationTrainer:
         epoch: int,
         stage: str,
         prediction_dir: str | None = None,
+        threshold: float = 0.5,
     ) -> tuple[dict[str, float], tuple[np.ndarray, np.ndarray, np.ndarray, list[str]] | None]:
         training = optimizer is not None
         model.train(training)
-        metrics = BinarySegmentationMetrics()
+        metrics = BinarySegmentationMetrics(threshold=threshold)
         total_loss, sample_count = 0.0, 0
         examples = None
         output_dir = Path(prediction_dir) if prediction_dir else None
@@ -169,7 +188,7 @@ class SegmentationTrainer:
                 if examples is None and not training:
                     examples = self._to_loggable_examples(images, masks, logits, list(filenames))
                 if output_dir is not None:
-                    self._save_predictions(logits, filenames, output_dir)
+                    self._save_predictions(logits, filenames, output_dir, threshold)
 
         result = {"loss": total_loss / max(sample_count, 1), **metrics.compute()}
         return result, examples
@@ -207,8 +226,8 @@ class SegmentationTrainer:
         )
 
     @staticmethod
-    def _save_predictions(logits: torch.Tensor, filenames: list[str] | tuple[str, ...], output_dir: Path) -> None:
-        predictions = (torch.sigmoid(logits) >= 0.5).squeeze(1).byte().cpu().numpy() * 255
+    def _save_predictions(logits: torch.Tensor, filenames: list[str] | tuple[str, ...], output_dir: Path, threshold: float) -> None:
+        predictions = (torch.sigmoid(logits) >= threshold).squeeze(1).byte().cpu().numpy() * 255
         for prediction, filename in zip(predictions, filenames):
             destination = output_dir / f"{Path(filename).stem}.png"
             cv2.imwrite(str(destination), prediction)
