@@ -55,3 +55,4 @@ wandb==0.31.0
 xxhash==4.1.0
 牴湡晳牯敭獲㴾⸴㠳〮਍
 transformers>=4.38.0
+segmentation-models-pytorch>=0.3.3

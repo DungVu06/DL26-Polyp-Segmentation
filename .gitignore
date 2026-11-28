@@ -58,5 +58,6 @@ kaggle.json
 .DS_Store
 Thumbs.db
 
-
-kaggle
+experiments
+archive
+kvasir-seg-notebook.ipynb
